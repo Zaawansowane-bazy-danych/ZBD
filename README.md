@@ -1,0 +1,2 @@
+# ZBD
+Zaawansowane Bazy Danych
