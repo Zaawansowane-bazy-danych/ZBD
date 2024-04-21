@@ -24,12 +24,10 @@ jobs:
           npm install
           npm run build 
 
-      # Zip the build directory
       - name: Zip Release
-        uses: TheDoctor0/zip-release@0.6.1
-        with:
-          filename: release.zip
-          path: ./*      
+        run: |
+          cd Frontend/tournament/build
+          zip -r release.zip *    
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v1
