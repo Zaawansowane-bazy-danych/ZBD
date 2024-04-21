@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: tournament-app
-          path: Frontend/tournament/build/release.zip
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
