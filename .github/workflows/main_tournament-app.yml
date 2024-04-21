@@ -30,13 +30,13 @@ jobs:
         uses: TheDoctor0/zip-release@0.6.1
         with:
           filename: release.zip
-          path: Frontend/tournament/build/*
+          path: build/*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app
-          path: Frontend/tournament/release.zip
+          path: Frontend/tournament/build/release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
           app-name: 'tournament-app'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_73E8326CE8DF4C4E9DEBDE2216D98D29 }}
-          package: Frontend/tournament/release.zip
+          package: ${{ github.workspace }}/Frontend/tournament/build/release.zip
