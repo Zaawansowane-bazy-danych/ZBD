@@ -58,4 +58,4 @@ jobs:
           app-name: 'tournament-app'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_73E8326CE8DF4C4E9DEBDE2216D98D29 }}
-          package: ${{ github.workspace }}/Frontend/tournament/build/release.zip
+          package: Frontend/tournament/build/release.zip
