@@ -31,6 +31,9 @@ jobs:
           filename: release.zip
           path: Frontend/tournament/build/*
 
+      - name: List Files
+        run: ls -R          
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v1
         with:
