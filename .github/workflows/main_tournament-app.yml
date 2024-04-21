@@ -29,10 +29,7 @@ jobs:
         uses: TheDoctor0/zip-release@0.6.1
         with:
           filename: release.zip
-          path: Frontend/tournament/build/*
-
-      - name: List Files
-        run: ls -R          
+          path: Frontend/tournament/build/*      
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v1
@@ -50,7 +47,8 @@ jobs:
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v1
-
+        with:
+          name: tournament-app
       - name: List Files
         run: ls -R
 
