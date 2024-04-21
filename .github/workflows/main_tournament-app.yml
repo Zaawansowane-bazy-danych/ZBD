@@ -59,4 +59,4 @@ jobs:
           app-name: 'tournament-app'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_73E8326CE8DF4C4E9DEBDE2216D98D29 }}
-          package: release.zip
+          package: tournament-app/release.zip
