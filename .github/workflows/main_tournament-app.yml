@@ -28,15 +28,12 @@ jobs:
         run: |
           cd Frontend/tournament/build
           zip -r release.zip *    
-          
-      - name: List Files
-        run: ls -R
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v1
         with:
           name: tournament-app
-          path: release.zip
+          path: Frontend/tournament/build/relase.zip
 
   deploy:
     runs-on: ubuntu-latest
