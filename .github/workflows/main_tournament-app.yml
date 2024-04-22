@@ -28,6 +28,9 @@ jobs:
         run: |
           cd Frontend/tournament/build
           zip -r release.zip *    
+          
+      - name: List Files
+        run: ls -R
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v1
