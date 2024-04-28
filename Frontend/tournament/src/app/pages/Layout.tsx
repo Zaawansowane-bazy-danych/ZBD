@@ -12,13 +12,13 @@ const Layout = () => {
         <Menu.Item key="2">
           <Link to="/home">
             <HomeOutlined />
-            Home
+            <span style={{ marginLeft: "4px" }}>Home</span>
           </Link>
         </Menu.Item>
         <Menu.Item key="3">
           <Link to="/tournament">
             <TrophyOutlined />
-            Tournament
+            <span style={{ marginLeft: "4px" }}>Tournament</span>
           </Link>
         </Menu.Item>
       </Menu>
