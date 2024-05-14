@@ -14,7 +14,6 @@ def _generate_players(names: list[str]) -> list[Player]:
     shuffle(players)
     size = _find_smallest_size(names)
     players = _extend_list_nones(players, size)
-    print(players)
     return players
 
 

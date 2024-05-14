@@ -15,8 +15,7 @@ class TournamentGenerator:
         for i in range(1, n_levels):
             empty_players = [None for _ in range(len(level))]
             levels.append(level := _generate_level(empty_players, i))
-
-        return Tournament(levels)
+        return Tournament(matches=levels)
 
 
 def _find_num_of_levels(n: int | list) -> int:
@@ -27,6 +26,6 @@ def _generate_level(players: list[Player | None], level: int) -> list[Match]:
     matches = []
     it = iter(players)
     pairs = zip(it, it)
-    for x, y in pairs:
-        matches.append(Match(x, y, level))
+    for i, (x, y) in enumerate(pairs):
+        matches.append(Match(x, y, level, i))
     return matches
