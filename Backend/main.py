@@ -44,15 +44,8 @@ def generate_tournament(data: GenerationData):
     return tournament
 
 
-@app.post('/update-tournament/')    # roboczy endpoint poki nie ma pisania do bazy
-def update_t(data: Tournament):
-    return data
-
-
-@app.post('/update/')               # też roboczy na razie
+@app.post('/update/')
 def update_tournament(data: UpdateData):
-    tournament = None
-    # TODO: DOWNLOAD FROM THE DATABASE
-    tournament.update(data.level, data.level_number, data.player_name, data.score)
-    # TODO: SAVE TO THE DATABASE
+    handler = SurrealHandler()
+    tournament = handler.update_tournament_score(data.tournament_id, data.level, data.level_number, data.player_name, data.score)
     return tournament

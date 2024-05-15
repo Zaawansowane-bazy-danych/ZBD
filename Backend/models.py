@@ -8,7 +8,7 @@ class Player:
     name: str
 
     def __str__(self):
-        return f'Player {self.name}'
+        return self.name
 
 
 @dataclass
@@ -22,12 +22,12 @@ class Match:
     winner: Player | None = None
 
     def __str__(self):
-        return f'{self.player_left} vs {self.player_right}'
+        return f'{self.player_left} ({self.score_left}) vs {self.player_right} ({self.score_right})'
 
     def update_score(self, name: str, score: float):
-        if self.player_right.name == name:
+        if self.player_right is not None and self.player_right.name == name:
             self.score_right = score
-        elif self.player_left.name == name:
+        elif self.player_left is not None and self.player_left.name == name:
             self.score_left = score
         else:
             raise NonexistentPlayerException(f'player {name} does not exist')
@@ -45,13 +45,23 @@ class Tournament(BaseModel):
 
     def __post_init__(self):
         self.id = str(uuid1())
+        for match in self.matches[0]:
+            if match.player_right is None and match.player_left is not None:
+                match.winner = match.player_left
+            elif match.player_left is None and match.player_right is not None:
+                match.winner = match.player_right
 
     def update(self, level: int, number: int, player_name: str, score: float):
-        for match in self.matches[level]:
-            if match.number == number:
-                match.update_score(player_name, score)
-                break
-        else:
+        try:
+            self.matches[level][number].update_score(player_name, score)
+            winner = self.matches[level][number].winner
+            if winner is not None and level + 1 < len(self.matches):
+                index = int(number/2)
+                if number % 2 == 0:
+                    self.matches[level + 1][index].player_left = winner
+                else:
+                    self.matches[level + 1][index].player_right = winner
+        except IndexError:
             raise NonexistentMatchException()
 
     def __str__(self):

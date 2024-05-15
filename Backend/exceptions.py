@@ -8,6 +8,11 @@ class NonexistentMatchException(Exception):
         super().__init__(message)
 
 
+class NonexistentTournamentException(Exception):
+    def __init__(self, message='nonexistent tournament'):
+        super().__init__(message)
+
+
 class SurrealException(Exception):
     def __init__(self, message='db error'):
         super().__init__(message)
