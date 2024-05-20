@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from uuid import uuid1
 from exceptions import NonexistentPlayerException, NonexistentMatchException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
 
 @dataclass
 class Player:
@@ -43,9 +44,11 @@ class Tournament(BaseModel):
     matches: list[list[Match]]
     id: str = str(uuid1()).replace('-', '')
 
-    def __post_init__(self):
-        self.id = str(uuid1())
+    @field_validator('matches', ...)
+    def __pydantic_post_init__(self):
+        # self.id = 'id'
         for match in self.matches[0]:
+            match.winner = match.player_left
             if match.player_right is None and match.player_left is not None:
                 match.winner = match.player_left
             elif match.player_left is None and match.player_right is not None:
