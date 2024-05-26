@@ -18,4 +18,18 @@ jobs:
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
           docker build -t advanceddatabase.azurecr.io/advanced-databases-backend:latest Backend/.
           docker push advanceddatabase.azurecr.io/advanced-databases-backend:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Azure Container App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'advanced-databases-backend'
+          images: 'advanceddatabase.azurecr.io/advanced-databases-backend:latest'
+          slot-name: 'production'
     
