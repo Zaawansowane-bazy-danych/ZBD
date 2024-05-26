@@ -1,8 +1,7 @@
 import json
-import asyncio
 import requests
+import os
 from requests.auth import HTTPBasicAuth
-from tournament_generator import TournamentGenerator
 from exceptions import NonexistentTournamentException
 from models import Tournament
 from exceptions import SurrealException
@@ -11,6 +10,15 @@ from exceptions import SurrealException
 class SurrealHandler:
 
     def __init__(self):
+        self.url = os.environ.get('link')
+        self.login = os.environ.get('login')
+        self.password = os.environ.get('password')
+        self.ns = os.environ.get('ns')
+        self.db = os.environ.get('db')
+        if None in [self.url, self.login, self.password, self.ns, self.db]:
+            raise SurrealException('Failed to retrieve database access data from the server environment')
+
+    def __init__json__(self):
         with open('config.json') as f:
             config = json.load(f)
             self.url = config.get('link')
@@ -30,8 +38,7 @@ class SurrealHandler:
             data=query,
             auth=HTTPBasicAuth(self.login, self.password))
         if req.status_code != 200:
-            raise SurrealException(f'db error - code {req.status_code}')
-        # print(req.json())
+            raise SurrealException(f'Database error - surrealdb server response code {req.status_code}')
         return req.json()
 
     def create_tournament(self, tournament: Tournament):
@@ -59,17 +66,10 @@ class SurrealHandler:
 
 def _parse_response(response):
     res = response[0] if type(response) == list else response
+    if res.get('result') in [None, []]:
+        raise NonexistentTournamentException()
     result = res.get('result')[0]
     id, matches = result.get('id'), result.get('matches')
     if result is None:
         raise NonexistentTournamentException()
     return Tournament(id=id.replace('tournament:', ''), matches=matches)
-
-
-'''
-handler = SurrealHandler()
-handler.update_tournament_score('b93c7ceb11cc11efaadf3c52824480ca', 0, 0, 'y', 130)
-t = handler.update_tournament_score('b93c7ceb11cc11efaadf3c52824480ca', 0, 0, 'z', 20)
-print(t)
-print(type(t))
-'''

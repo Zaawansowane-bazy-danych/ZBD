@@ -16,3 +16,8 @@ class NonexistentTournamentException(Exception):
 class SurrealException(Exception):
     def __init__(self, message='db error'):
         super().__init__(message)
+
+
+class IllegalScoringException(Exception):
+    def __init__(self, message='illegal scoring'):
+        super().__init__(message)
