@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-and-deploy-backend:
     runs-on: ubuntu-latest
 
     permissions: 
@@ -17,11 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-    #   - name: Build and push Docker image
-    #     run: |
-    #       docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
-    #       docker build -t advanceddatabase.azurecr.io/advanced-databases-backend:latest Backend/.
-    #       docker push advanceddatabase.azurecr.io/advanced-databases-backend:latest
+      - name: Build and push Docker image
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
+          docker build -t advanceddatabase.azurecr.io/advanced-databases-backend:latest Backend/.
+          docker push advanceddatabase.azurecr.io/advanced-databases-backend:latest
 
       - name: Azure Login
         uses: azure/login@v1
@@ -35,4 +35,33 @@ jobs:
           containerAppName: advanced-databases-backend
           resourceGroup: advanced-databases
           imageToDeploy: advanceddatabase.azurecr.io/advanced-databases-backend:latest
-    
+
+  build-and-deploy-frontend:
+    runs-on: ubuntu-latest
+
+    permissions: 
+        id-token: write #This is required for requesting the OIDC JWT Token
+        contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
+          docker build -t advanceddatabase.azurecr.io/advanced-databases-frontend:latest Frontend/.
+          docker push advanceddatabase.azurecr.io/advanced-databases-frontend:latest
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_ADVANCED_DATABASES_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          registryUrl: advanceddatabase.azurecr.io
+          containerAppName: advanced-databases-frontend
+          resourceGroup: advanced-databases
+          imageToDeploy: advanceddatabase.azurecr.io/advanced-databases-frontend:latest
