@@ -34,5 +34,5 @@ jobs:
           registryUrl: advanceddatabase.azurecr.io
           containerAppName: advanced-databases-backend
           resourceGroup: advanced-databases
-          image: advanceddatabase.azurecr.io/advanced-databases-backend:latest
+          imageToDeploy: advanceddatabase.azurecr.io/advanced-databases-backend:latest
     
