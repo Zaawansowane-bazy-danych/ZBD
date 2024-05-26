@@ -31,13 +31,8 @@ jobs:
       - name: Build and push container image to registry
         uses: azure/container-apps-deploy-action@v2
         with:
-          appSourcePath: ${{ github.workspace }} 
           registryUrl: advanceddatabase.azurecr.io
-          registryUsername: ${{ secrets.DOCKER_USERNAME }}
-          registryPassword: ${{ secrets.DOCKER_PASSWORD }}
           containerAppName: advanced-databases-backend
           resourceGroup: advanced-databases
-          imageToBuild: advanceddatabase.azurecr.io/advanced-databases-backend:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
+          image: advanceddatabase.azurecr.io/advanced-databases-backend:latest
     
