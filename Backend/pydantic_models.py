@@ -23,7 +23,6 @@ class GenerationData(BaseModel):
 
 
 class UpdateData(BaseModel):
-    tournament_id: str
     level: Annotated[int, AfterValidator(check_positive)]
     level_number: Annotated[int, AfterValidator(check_positive)]
     player_name: str

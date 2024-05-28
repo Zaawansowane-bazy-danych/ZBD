@@ -10,11 +10,11 @@ from exceptions import SurrealException
 class SurrealHandler:
 
     def __init__(self):
-        self.url = os.environ.get('link')
-        self.login = os.environ.get('login')
-        self.password = os.environ.get('password')
-        self.ns = os.environ.get('ns')
-        self.db = os.environ.get('db')
+        self.url = os.environ.get('SURREALDB_URL')
+        self.login = os.environ.get('SUERREALDB_LOGIN')
+        self.password = os.environ.get('SUERREALDB_PASSWORD')
+        self.ns = os.environ.get('SUERREALDB_NS')
+        self.db = os.environ.get('SUERREALDB_DB')
         if None in [self.url, self.login, self.password, self.ns, self.db]:
             raise SurrealException('Failed to retrieve database access data from the server environment')
 

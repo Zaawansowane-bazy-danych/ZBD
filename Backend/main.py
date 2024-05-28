@@ -79,7 +79,7 @@ def root():
     return {'hello': 'world'}
 
 
-@app.post('/generate/', response_model=Tournament, status_code=201)
+@app.post('/tournament/', response_model=Tournament, status_code=201)
 def generate_tournament(data: GenerationData):
     generator = TournamentGenerator(data.player_names)
     tournament = generator.construct_tournament()
@@ -88,13 +88,27 @@ def generate_tournament(data: GenerationData):
     return tournament
 
 
-@app.post('/update/', response_model=Tournament, status_code=200)
-def update_tournament(data: UpdateData):
+@app.put('/tournament/{tournament_id}', response_model=Tournament, status_code=200)
+def update_tournament(tournament_id: str, data: UpdateData):
     handler = SurrealHandler()
     tournament = handler.update_tournament_score(
-        data.tournament_id,
+        tournament_id,
         data.level,
         data.level_number,
         data.player_name,
         data.score)
     return tournament
+
+
+@app.get('/tournament/{tournament_id}', response_model=Tournament, status_code=200)
+def get_tournament(tournament_id: str):
+    handler = SurrealHandler()
+    tournament = handler.get_tournament(tournament_id)
+    return tournament
+
+
+@app.delete('/tournament/{tournament_id}', status_code=204)
+def delete_tournament(tournament_id: str):
+    handler = SurrealHandler()
+    handler.delete_tournament(tournament_id)
+    return JSONResponse(status_code=204)
