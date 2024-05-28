@@ -26,7 +26,12 @@ jobs:
           SUERREALDB_DB: ${{ secrets.SUERREALDB_DB }}
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
-          docker build -t advanceddatabase.azurecr.io/advanced-databases-backend:latest Backend/.
+          docker build --build-arg SURREALDB_URL=${{ secrets.SURREALDB_URL }} \
+          --build-arg SUERREALDB_LOGIN=${{ secrets.SUERREALDB_LOGIN }} \
+          --build-arg SUERREALDB_PASSWORD=${{ secrets.SUERREALDB_PASSWORD }} \
+          --build-arg SUERREALDB_NS=${{ secrets.SUERREALDB_NS }} \
+          --build-arg SUERREALDB_DB=${{ secrets.SUERREALDB_DB }} \
+          -t advanceddatabase.azurecr.io/advanced-databases-backend:latest Backend/.
           docker push advanceddatabase.azurecr.io/advanced-databases-backend:latest
 
       - name: Azure Login
