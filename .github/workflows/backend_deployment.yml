@@ -18,6 +18,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build and push Docker image
+        env:
+          SURREALDB_URL: ${{ secrets.SURREALDB_URL }}
+          SUERREALDB_LOGIN: ${{ secrets.SUERREALDB_LOGIN }}
+          SUERREALDB_PASSWORD: ${{ secrets.SUERREALDB_PASSWORD }}
+          SUERREALDB_NS: ${{ secrets.SUERREALDB_NS }}
+          SUERREALDB_DB: ${{ secrets.SUERREALDB_DB }}
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
           docker build -t advanceddatabase.azurecr.io/advanced-databases-backend:latest Backend/.
@@ -48,12 +54,6 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build and push Docker image
-        env:
-          SURREALDB_URL: ${{ secrets.SURREALDB_URL }}
-          SUERREALDB_LOGIN: ${{ secrets.SUERREALDB_LOGIN }}
-          SUERREALDB_PASSWORD: ${{ secrets.SUERREALDB_PASSWORD }}
-          SUERREALDB_NS: ${{ secrets.SUERREALDB_NS }}
-          SUERREALDB_DB: ${{ secrets.SUERREALDB_DB }}
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
           docker build -t advanceddatabase.azurecr.io/advanced-databases-frontend:latest Frontend/tournament/.
