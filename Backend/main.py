@@ -111,4 +111,4 @@ def get_tournament(tournament_id: str):
 def delete_tournament(tournament_id: str):
     handler = SurrealHandler()
     handler.delete_tournament(tournament_id)
-    return JSONResponse(status_code=204)
+    return None
