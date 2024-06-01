@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { API_URL } from '../../config';
+import { Input } from 'antd';
+
+const { TextArea } = Input;
 
 function Home() {
-    const [data, setData] = useState([]);
+    const [userNames, setUserNames] = useState('');
 
     useEffect(() => {
         fetchData();
@@ -11,16 +14,30 @@ function Home() {
     const fetchData = async () => {
         try {
             const response = await fetch(API_URL || '');
-            const jsonData = await response.json();
-            setData(jsonData);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setUserNames(event.target.value);
+    console.log(userNames);
+  };
+
     return (
-        <div>
-        </div>
+        <>
+            <TextArea
+                placeholder="Enter user names"
+                autoSize={{ minRows: 3 }}
+                value={userNames}
+                onChange={handleInputChange}
+                style={{
+                    width: '25%',
+                    margin: '20px auto',
+                    display: 'block'
+                }}
+            />
+        </>
     );
 }
 
