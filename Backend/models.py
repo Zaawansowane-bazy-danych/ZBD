@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 from uuid import uuid1
 from exceptions import NonexistentPlayerException, NonexistentMatchException, IllegalScoringException
@@ -57,6 +58,7 @@ class Tournament(BaseModel):
     id: str = str(uuid1()).replace('-', '')
 
     def fix(self):
+        self.id = str(uuid1()).replace('-', '') + str(random.randint(100, 999))
         for match in self.matches[0]:
             if match.player_right is None and match.player_left is not None:
                 match.winner = match.player_left
