@@ -21,4 +21,9 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "start.py"]
+CMD echo "SURREALDB_URL: $SURREALDB_URL" && \
+    echo "SUERREALDB_LOGIN: $SUERREALDB_LOGIN" && \
+    echo "SUERREALDB_PASSWORD: $SUERREALDB_PASSWORD" && \
+    echo "SUERREALDB_NS: $SUERREALDB_NS" && \
+    echo "SUERREALDB_DB: $SUERREALDB_DB" && \
+    python start.py

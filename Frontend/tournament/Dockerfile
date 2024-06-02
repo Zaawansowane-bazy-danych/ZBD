@@ -12,4 +12,5 @@ COPY . .
 RUN npm run build
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD echo "REACT_APP_API_URL: $REACT_APP_API_URL" && \
+    npm start
