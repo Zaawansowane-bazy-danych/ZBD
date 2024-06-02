@@ -15,6 +15,7 @@ function Home() {
     const navigate = useNavigate();
     const [isSubmitted, setIsSubmitted] = useState(false); 
     const [scores, setScores] = useState<{ [key: string]: number }>({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setUserNames(['1', '2', '3', '4', '5', '6', '7', '8']);
@@ -23,22 +24,46 @@ function Home() {
         }
     }, [userName, navigate]);
 
-    const createTournament = async (data: string[]) => {
+    const createTournament = (data: string[]) => {
         try {
-            const response = await fetch(API_URL + 'tournament/' || '', {
+            fetch(API_URL + 'tournament/' || '', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ player_names: data }),
-            });
-
-            const responseBody: TournamentModel = await response.json();
-            setTournament(responseBody);
-
+            }).then(response => response.json()).then(json => {
+                setTournament(json);
+            })
         } catch (error) {
             console.error('Error creating tournament:', error);
         }
+    };
+
+    const updateTournament = (data: any) => {
+        setLoading(true);
+        try {
+            console.log(data)
+            const updateData = data.update_data;  
+            fetch(API_URL + `tournament/${data.tournament_id}` || '', {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updateData),
+            }).then(response => response.json()).then(json => {
+                console.log(json);
+                if(json?.matches) {
+                    console.log(json);
+                    setTournament(json);
+                }
+                setLoading(false);
+            });
+        } catch (error) {
+            console.error('Error updating tournament:', error);
+            setLoading(false);
+        }
+
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -56,7 +81,7 @@ function Home() {
     const handleSubmit = async () => {
         if (isValid) {
             message.success('User names submitted successfully!');
-            await createTournament(userNames);
+            createTournament(userNames);
             setIsSubmitted(true); 
         } else {
             message.error('Please enter one-word user names separated by new lines.');
@@ -71,11 +96,17 @@ function Home() {
         }));
     };
 
-    const saveScore = (match: MatchModel, player: string) => () => {
+    const saveScore = (match: MatchModel, player: string) => async () => {
+        let playerName = '';
+        let score = 0;
         if (player === 'left') {
             match.score_left = scores[`${match.level}-${match.number}-left`] || 0;
+            playerName = match.player_left?.name || '';
+            score = match.score_left;
         } else if (player === 'right') {
             match.score_right = scores[`${match.level}-${match.number}-right`] || 0;
+            playerName = match.player_right?.name || '';
+            score = match.score_right;
         }
         
         tournament?.matches.forEach((levelMatches) => {
@@ -85,8 +116,7 @@ function Home() {
                 }
             })
         });
-        console.log(tournament);
-        setTournament(tournament)
+        updateTournament({ tournament_id: tournament?.id, update_data: {level: match.level, level_number: match.number, player_name: playerName, score: score} });
     }
 
     return (
@@ -122,28 +152,31 @@ function Home() {
                                     levelMatches.map((match, index) => (
                                         <div key={index} className='flex flex-col mb-4 ml-12'>
                                             <div className='flex'>
-                                                <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center'>{match.player_right?.name}</div>
+                                                <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center' style={{ border: '1px solid #d9d9d9' }}>{match.player_right?.name}</div>
                                                 <Input 
-                                                    className="p-0 w-24 h-7 rounded-none"
-                                                    style={{ textAlign: 'center' }}
+                                                    className="w-24 rounded-none"
+                                                    style={{ textAlign: 'center', border: '1px solid #d9d9d9' }}
                                                     disabled={!match.player_right?.name}
                                                     defaultValue={match.score_right}
                                                     onChange={handleScoreChange(match, 'right')}
                                                     type="number"
+                                                    
                                                 />
-                                                <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'right')}/>
+                                                {/* <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'right')}/> */}
+                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={saveScore(match, 'right')} icon={<SaveOutlined className='text-xl'/>} ></Button>
                                             </div>
                                             <div className='flex'>
-                                                <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center'>{match.player_left?.name}</div>
+                                                <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center' style={{ border: '1px solid #d9d9d9' }}>{match.player_left?.name}</div>
                                                 <Input 
-                                                    className="p-0 w-24 h-7 rounded-none"
-                                                    style={{ textAlign: 'center' }}
+                                                    className="w-24 rounded-none"
+                                                    style={{ textAlign: 'center', border: '1px solid #d9d9d9' }}
                                                     disabled={!match.player_left?.name}
                                                     defaultValue={match.score_left}
                                                     onChange={handleScoreChange(match, 'left')}
                                                     type="number"
                                                 />
-                                                <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'left')}/>
+                                                {/* <SaveOutlined /> */}
+                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer pl-1 pr-1 rounded-none border-l-0' onClick={saveScore(match, 'left')} icon={<SaveOutlined className='text-xl' />} ></Button>
                                             </div>
                                         </div>
                                     ))
