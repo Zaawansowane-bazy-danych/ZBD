@@ -180,7 +180,6 @@ function Home() {
                                                     type="number"
                                                     
                                                 />
-                                                {/* <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'right')}/> */}
                                                 <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={saveScore(match, 'right')} icon={<SaveOutlined className='text-xl'/>} disabled={loading}></Button>
                                             </div>
                                             <div className='flex'>
