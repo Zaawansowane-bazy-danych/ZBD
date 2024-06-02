@@ -24,46 +24,64 @@ function Home() {
         }
     }, [userName, navigate]);
 
+    const fetchWithTimeout = (url: string, options: RequestInit, timeout: number = 2000) => {
+        return new Promise<Response>((resolve, reject) => {
+            const timer = setTimeout(() => {
+                message.error('Request timed out');
+                reject(new Error('Request timed out'));
+            }, timeout);
+
+            fetch(url, options)
+                .then(response => {
+                    clearTimeout(timer);
+                    resolve(response);
+                })
+                .catch(err => {
+                    clearTimeout(timer);
+                    message.error('Request failed: ' + err.message);
+                    reject(err);
+                });
+        });
+    };
+
     const createTournament = (data: string[]) => {
-        try {
-            fetch(API_URL + 'tournament/' || '', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ player_names: data }),
-            }).then(response => response.json()).then(json => {
-                setTournament(json);
-            })
-        } catch (error) {
+        fetchWithTimeout(API_URL + 'tournament/' || '', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ player_names: data }),
+        })
+        .then(response => response.json())
+        .then(json => {
+            setTournament(json);
+        })
+        .catch(error => {
             console.error('Error creating tournament:', error);
-        }
+        });
     };
 
     const updateTournament = (data: any) => {
         setLoading(true);
-        try {
-            console.log(data)
-            const updateData = data.update_data;  
-            fetch(API_URL + `tournament/${data.tournament_id}` || '', {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updateData),
-            }).then(response => response.json()).then(json => {
-                console.log(json);
-                if(json?.matches) {
-                    console.log(json);
-                    setTournament(json);
-                }
-                setLoading(false);
-            });
-        } catch (error) {
+        const updateData = data.update_data;  
+        fetchWithTimeout(API_URL + `tournament/${data.tournament_id}` || '', {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateData),
+        })
+        .then(response => response.json())
+        .then(json => {
+            if(json?.matches) {
+                setTournament(json);
+            }
+            setLoading(false);
+        })
+        .catch(error => {
             console.error('Error updating tournament:', error);
             setLoading(false);
-        }
-
+        });
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -163,7 +181,7 @@ function Home() {
                                                     
                                                 />
                                                 {/* <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'right')}/> */}
-                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={saveScore(match, 'right')} icon={<SaveOutlined className='text-xl'/>} ></Button>
+                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={saveScore(match, 'right')} icon={<SaveOutlined className='text-xl'/>} disabled={loading}></Button>
                                             </div>
                                             <div className='flex'>
                                                 <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center' style={{ border: '1px solid #d9d9d9' }}>{match.player_left?.name}</div>
@@ -176,7 +194,7 @@ function Home() {
                                                     type="number"
                                                 />
                                                 {/* <SaveOutlined /> */}
-                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer pl-1 pr-1 rounded-none border-l-0' onClick={saveScore(match, 'left')} icon={<SaveOutlined className='text-xl' />} ></Button>
+                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer pl-1 pr-1 rounded-none border-l-0' onClick={saveScore(match, 'left')} icon={<SaveOutlined className='text-xl' />} disabled={loading}></Button>
                                             </div>
                                         </div>
                                     ))
