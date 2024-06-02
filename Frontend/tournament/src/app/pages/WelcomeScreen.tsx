@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Input, Button } from 'antd';
+import { Input, Button, message } from 'antd';
 import 'tailwindcss/tailwind.css';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from "../../UserContext";
@@ -17,7 +17,11 @@ function WelcomeScreen() {
     }, [userName, navigate]);
 
     const handleConfirm = () => {
-        setUserName(userNameLocal);
+        if (userNameLocal.trim() === '') {
+            message.warning('Please enter your name');
+        } else {
+            setUserName(userNameLocal);
+        }
     };
 
     return (

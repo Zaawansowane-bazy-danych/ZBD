@@ -3,36 +3,47 @@ import { API_URL } from '../../config';
 import { Input, Button, message } from 'antd';
 import { useUser } from "../../UserContext";
 import { useNavigate } from 'react-router-dom';
+import { SaveOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
 function Home() {
-    const [userNames, setUserNames] = useState('');
+    const [userNames, setUserNames] = useState<string[]>([]);
+    const [tournament, setTournament] = useState<TournamentModel | null>(null);  
     const [isValid, setIsValid] = useState(true);
-    const [userName, setUserName] = useUser();
-    const navigate = useNavigate(); 
+    const [userName ] = useUser();
+    const navigate = useNavigate();
+    const [isSubmitted, setIsSubmitted] = useState(false); 
+    const [scores, setScores] = useState<{ [key: string]: number }>({});
 
     useEffect(() => {
-        if(!userName) {
+        setUserNames(['1', '2', '3', '4', '5', '6', '7', '8']);
+        if (!userName) {
             navigate(`/`);
         }
     }, [userName, navigate]);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
+    const createTournament = async (data: string[]) => {
         try {
-            const response = await fetch(API_URL || '');
+            const response = await fetch(API_URL + 'tournament/' || '', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ player_names: data }),
+            });
+
+            const responseBody: TournamentModel = await response.json();
+            setTournament(responseBody);
+
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error creating tournament:', error);
         }
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const value = event.target.value;
-        setUserNames(value);
+        setUserNames(value.split('\n'));
         validateUserNames(value);
     };
 
@@ -42,31 +53,127 @@ function Home() {
         setIsValid(isValidFormat);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (isValid) {
-            // Do something with valid user names
             message.success('User names submitted successfully!');
+            await createTournament(userNames);
+            setIsSubmitted(true); 
         } else {
             message.error('Please enter one-word user names separated by new lines.');
         }
     };
 
+    const handleScoreChange = (match: MatchModel, player: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseFloat(event.target.value);
+        setScores(prevScores => ({
+            ...prevScores,
+            [`${match.level}-${match.number}-${player}`]: value
+        }));
+    };
+
+    const saveScore = (match: MatchModel, player: string) => () => {
+        if (player === 'left') {
+            match.score_left = scores[`${match.level}-${match.number}-left`] || 0;
+        } else if (player === 'right') {
+            match.score_right = scores[`${match.level}-${match.number}-right`] || 0;
+        }
+        
+        tournament?.matches.forEach((levelMatches) => {
+            levelMatches.forEach((iteratedMatch) => {
+                if(iteratedMatch.level === match.level && iteratedMatch.number === match.number) {
+                    iteratedMatch = match;
+                }
+            })
+        });
+        console.log(tournament);
+        setTournament(tournament)
+    }
+
     return (
-        <div style={{display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+        <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
             <TextArea
                 placeholder="Enter user names (split with new lines)"
                 autoSize={{ minRows: 3 }}
-                value={userNames}
+                value={userNames.join('\n')}
                 onChange={handleInputChange}
                 style={{
                     width: '15%',
                     height: '25%',
                     margin: '20px auto',
                 }}
+                disabled={isSubmitted} 
             />
-            <Button type="primary" onClick={handleSubmit} style={{ width: '15%', margin: '0 auto'}} size="large">Submit</Button>
+            <Button
+                type="primary"
+                onClick={handleSubmit}
+                style={{ width: '15%', margin: '0 auto' }}
+                size="large"
+                disabled={isSubmitted} 
+            >
+                Submit
+            </Button>
+
+            {tournament &&
+                <div className='flex flex-row m-6'>
+                    {
+                        tournament.matches.map((levelMatches, index) => (
+                            <div key={index} className="flex flex-col justify-center first-letter:items-center"> 
+                                {
+                                    levelMatches.map((match, index) => (
+                                        <div key={index} className='flex flex-col mb-4 ml-12'>
+                                            <div className='flex'>
+                                                <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center'>{match.player_right?.name}</div>
+                                                <Input 
+                                                    className="p-0 w-24 h-7 rounded-none"
+                                                    style={{ textAlign: 'center' }}
+                                                    disabled={!match.player_right?.name}
+                                                    defaultValue={match.score_right}
+                                                    onChange={handleScoreChange(match, 'right')}
+                                                    type="number"
+                                                />
+                                                <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'right')}/>
+                                            </div>
+                                            <div className='flex'>
+                                                <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center'>{match.player_left?.name}</div>
+                                                <Input 
+                                                    className="p-0 w-24 h-7 rounded-none"
+                                                    style={{ textAlign: 'center' }}
+                                                    disabled={!match.player_left?.name}
+                                                    defaultValue={match.score_left}
+                                                    onChange={handleScoreChange(match, 'left')}
+                                                    type="number"
+                                                />
+                                                <SaveOutlined className='cursor-pointer text-xl pl-1 pr-1 border' onClick={saveScore(match, 'left')}/>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        ))
+                    }
+                </div>
+            }
         </div>
     );
 }
 
 export default Home;
+
+export interface TournamentModel {
+    id: string;
+    matches: MatchModel[][];
+}
+
+export interface MatchModel {
+    level: number;
+    number: number;
+    player_left: Player;
+    player_right: Player;
+    score_left: number;
+    score_right: number;
+    winner: Player;
+}
+
+export interface Player {
+    name: string;
+}
