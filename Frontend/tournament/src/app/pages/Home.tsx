@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { API_URL } from '../../config';
-import { Input, Button, message } from 'antd';
+import { Input, Button, message, Modal } from 'antd';
 import { useUser } from "../../UserContext";
 import { useNavigate } from 'react-router-dom';
-import { SaveOutlined } from '@ant-design/icons';
+import { SaveOutlined, ClockCircleOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -16,6 +16,18 @@ function Home() {
     const [isSubmitted, setIsSubmitted] = useState(false); 
     const [scores, setScores] = useState<{ [key: string]: number }>({});
     const [loading, setLoading] = useState(false);
+    const [timerVisible, setTimerVisible] = useState(false); 
+    const [timerRunning, setTimerRunning] = useState(false);
+    const [startTime, setStartTime] = useState(0); 
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const [timerKey, setTimerKey] = useState(false); 
+    const [currentInputForTimer, setCurrentInputForTimer] = useState('');
+    const [currentMatchForTimer, setCurrentMatchForTimer] = useState({ level: 0, number: 0 } as MatchModel);
+    const [currentInputSide, setCurrentInputSide] = useState('');
+    const timerKeyRef = useRef(timerKey);
+    const [inputValue, setInputValue] = useState("");
+
+    timerKeyRef.current = timerKey;
 
     useEffect(() => {
         setUserNames(['1', '2', '3', '4', '5', '6', '7', '8']);
@@ -24,11 +36,46 @@ function Home() {
         }
     }, [userName, navigate]);
 
+    useEffect(() => { 
+        if (timerRunning) {
+            const start = Date.now();
+            const interval = setInterval(() => {
+                var delta = Date.now() - start; 
+                setElapsedTime(delta / 10);
+            }, 10);
+
+            return () => {
+                clearInterval(interval);
+            };
+        }
+    }, [timerRunning]);
+
+    useEffect(() => {
+        const handleKeyDown = () => {
+            if (timerVisible) {
+                setStartTime(0);
+                setTimerKey(!timerKeyRef.current);
+                if (!timerKeyRef.current) {
+                    startTimer();
+                } else {
+                    stopTimer();
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [timerVisible]);
+
     const fetchWithTimeout = (url: string, options: RequestInit, timeout: number = 2000) => {
         return new Promise<Response>((resolve, reject) => {
             const timer = setTimeout(() => {
                 message.error('Request timed out');
                 reject(new Error('Request timed out'));
+                setLoading(false);
             }, timeout);
 
             fetch(url, options)
@@ -137,6 +184,16 @@ function Home() {
         updateTournament({ tournament_id: tournament?.id, update_data: {level: match.level, level_number: match.number, player_name: playerName, score: score} });
     }
 
+    const startTimer = () => {
+        setTimerRunning(true);
+        setStartTime(0); 
+    };
+
+    const stopTimer = () => {
+        setTimerRunning(false);
+        // setTimerVisible(false);
+    };
+
     return (
         <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
             <TextArea
@@ -181,6 +238,7 @@ function Home() {
                                                     
                                                 />
                                                 <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={saveScore(match, 'right')} icon={<SaveOutlined className='text-xl'/>} disabled={loading}></Button>
+                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={() => {setTimerVisible(true); setCurrentInputForTimer(`${match.level}-${match.number}-right`); setCurrentInputSide('right'); setCurrentMatchForTimer(match)}} icon={<ClockCircleOutlined className='text-xl'/>} disabled={loading}></Button>
                                             </div>
                                             <div className='flex'>
                                                 <div className='bg-gray-200 rounded-none pr-1 pl-1 w-36 text-center' style={{ border: '1px solid #d9d9d9' }}>{match.player_left?.name}</div>
@@ -192,9 +250,27 @@ function Home() {
                                                     onChange={handleScoreChange(match, 'left')}
                                                     type="number"
                                                 />
-                                                {/* <SaveOutlined /> */}
                                                 <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer pl-1 pr-1 rounded-none border-l-0' onClick={saveScore(match, 'left')} icon={<SaveOutlined className='text-xl' />} disabled={loading}></Button>
+                                                <Button style={{ border: '1px solid #d9d9d9' }} className='cursor-pointer text-xl pl-1 pr-1 border rounded-none border-l-0 border-b-0' onClick={() => {setTimerVisible(true); setCurrentInputForTimer(`${match.level}-${match.number}-left`); setCurrentInputSide('left'); setCurrentMatchForTimer(match)}} icon={<ClockCircleOutlined className='text-xl'/>} disabled={loading}></Button>
                                             </div>
+                                            {/* Timer Modal */}
+                                            <Modal
+                                                visible={timerVisible}
+                                                centered
+                                                closable={false}
+                                                maskClosable={false}
+                                                keyboard={false}
+                                                footer={[
+                                                    <Button key="stop" onClick={() => { stopTimer(); setTimerVisible(false); }}>
+                                                        Close Timer
+                                                    </Button>
+                                                ]}
+                                            >
+                                                <div>
+                                                    <h2 className='text-lg'>Timer (press any button to start/top)</h2>
+                                                    <h3 className='text-2xl'>{(elapsedTime / 100).toFixed(2)} seconds</h3>
+                                                </div>
+                                            </Modal>
                                         </div>
                                     ))
                                 }
