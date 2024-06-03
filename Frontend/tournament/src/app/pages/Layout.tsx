@@ -15,6 +15,13 @@ const Layout = () => {
   }, [userName, location.pathname]);
 
   const menuItems = [
+        {
+      key: "4",
+      label: (
+        <span style={{ marginLeft: "4px" }}>Hello {userName}</span>
+      ),
+      show: !!userName
+    },
     {
       key: "1",
       label: (
@@ -39,12 +46,12 @@ const Layout = () => {
       label: (
         <Link to="/tournament">
           <TrophyOutlined />
-          <span style={{ marginLeft: "4px" }}>Tournament</span>
+          <span style={{ marginLeft: "4px" }}>Tournaments base</span>
         </Link>
       ),
       path: "/tournament",
       show: !!userName 
-    }
+    },
   ];
 
   return (

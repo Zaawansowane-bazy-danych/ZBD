@@ -1,14 +1,27 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react';
 
-const UserContext = createContext<[string, (user: string) => void]>(['', () => {}]);
+type UserContextType = [string, Dispatch<SetStateAction<string>>];
+type TournamentContextType = [string[], Dispatch<SetStateAction<string[]>>];
+
+const UserContext = createContext<UserContextType>(['', () => {}]);
+const TournamentContext = createContext<TournamentContextType>([[], () => {}]);
 
 interface UserProviderProps {
   children: ReactNode;
 }
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const state = useState('');
-  return <UserContext.Provider value={state}>{children}</UserContext.Provider>
+  const userState = useState('');
+  const tournamentState = useState<string[]>([]);
+  
+  return (
+    <UserContext.Provider value={userState}>
+      <TournamentContext.Provider value={tournamentState}>
+        {children}
+      </TournamentContext.Provider>
+    </UserContext.Provider>
+  );
 };
 
 export const useUser = () => useContext(UserContext);
+export const useTournament = () => useContext(TournamentContext);

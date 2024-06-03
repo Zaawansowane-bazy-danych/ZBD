@@ -4,6 +4,7 @@ import { Input, Button, message, Modal } from 'antd';
 import { useUser } from "../../UserContext";
 import { useNavigate } from 'react-router-dom';
 import { SaveOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import { useTournament } from '../../UserContext';
 
 const { TextArea } = Input;
 
@@ -11,7 +12,7 @@ function Home() {
     const [userNames, setUserNames] = useState<string[]>([]);
     const [tournament, setTournament] = useState<TournamentModel | null>(null);  
     const [isValid, setIsValid] = useState(true);
-    const [userName ] = useUser();
+    const [userName] = useUser();
     const navigate = useNavigate();
     const [isSubmitted, setIsSubmitted] = useState(false); 
     const [scores, setScores] = useState<{ [key: string]: number }>({});
@@ -24,8 +25,10 @@ function Home() {
     const [currentInputForTimer, setCurrentInputForTimer] = useState('');
     const [currentMatchForTimer, setCurrentMatchForTimer] = useState({ level: 0, number: 0 } as MatchModel);
     const [currentInputSide, setCurrentInputSide] = useState('');
+    const tournamentContext = useTournament();
     const timerKeyRef = useRef(timerKey);
-    const [inputValue, setInputValue] = useState("");
+    const [tournamentsList, setTournamentsList] = useTournament();
+
 
     timerKeyRef.current = timerKey;
 
@@ -102,6 +105,8 @@ function Home() {
         .then(response => response.json())
         .then(json => {
             setTournament(json);
+            setTournamentsList([...tournamentsList, json.id]);
+            
         })
         .catch(error => {
             console.error('Error creating tournament:', error);
@@ -194,6 +199,11 @@ function Home() {
         // setTimerVisible(false);
     };
 
+    const discardTournament = () => {
+        setTournament(null);
+        setIsSubmitted(false);
+    }
+
     return (
         <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
             <TextArea
@@ -217,6 +227,16 @@ function Home() {
             >
                 Submit
             </Button>
+            
+            <Button
+                type="primary"
+                onClick={discardTournament}
+                style={{ width: '15%'}}
+                size="large"
+                className='mt-4'
+                disabled={!isSubmitted} 
+            >Discard</Button>
+            
 
             {tournament &&
                 <div className='flex flex-row m-6'>
