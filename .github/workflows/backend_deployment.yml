@@ -59,9 +59,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build and push Docker image
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} advanceddatabase.azurecr.io
-          docker build -t advanceddatabase.azurecr.io/advanced-databases-frontend:latest Frontend/tournament/.
+          docker build --build-arg REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }} \
+          -t advanceddatabase.azurecr.io/advanced-databases-frontend:latest Frontend/tournament/.
           docker push advanceddatabase.azurecr.io/advanced-databases-frontend:latest
 
       - name: Azure Login
