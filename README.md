@@ -70,3 +70,24 @@ Dokumentacja do komunikacji znajduje się pod adresem https://surrealdb.com/docs
 Aby skutecznie wysyłać zapytania do bazy danych, należy w zapytaniu podać dane do uwierzytelniania (te, które ustaliliśmy jako sekrety przed wdrożeniem) oraz dla headerów 'ns' i 'db' ustalić i podać (dowolne) nazwy namespace i database, z których chcemy korzystać podczas pracy z aplikacją, którą budujemy. \
 
 Więcej szczegółów na temat wdrożenia SurrealDB w fly.io można znaleźć pod adresem https://surrealdb.com/docs/surrealdb/deployment/fly
+
+## Wdrożenie Frontendu i Backendu
+
+Po postawieniu bazy danych możemy przejsc do postawienia aplikacji, którą możemy postawić lokalnie lub na azure
+
+### Postawienie lokalnie
+
+Żeby lokalnie uruchomic aplikacje będziemy potrzebować Dockera zaintsalowanego na naszym komputerze natsepnie trzeba uruchomic nastepujace komendy budujace nam obrazy:
+
+```console
+docker build --build-arg REACT_APP_API_URL=%backend-url% -t frontend Frontend/tournament/.
+docker build --build-arg SURREALDB_URL=%https://moja-baza.fly.dev% --build-arg SUERREALDB_LOGIN=%SURREAL_USER% --build-arg SUERREALDB_PASSWORD=%SURREAL_PASS% --build-arg SUERREALDB_NS=%Twój-namespace% --build-arg SUERREALDB_DB=%Twój-database% -t backend Backend/.
+```
+
+Oczywiście zmienne przy budowaniu obrazów nalezy dodać własne zmienne.
+Po czym:
+
+```console
+docker run -p 3000:3000 --name frontend frontend
+docker run -p 8000:8000 --name backend backend
+```
