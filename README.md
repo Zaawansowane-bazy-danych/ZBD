@@ -67,4 +67,6 @@ fly deploy
 Po wdrożeniu możemy zobaczyć stan naszej bazy pod adresem https://fly.io/apps/moja-baza \
 Komunikacja z bazą danych odbywa się poprzez zapytania HTTP pod adres https://moja-baza.fly.dev \
 Dokumentacja do komunikacji znajduje się pod adresem https://surrealdb.com/docs/surrealdb/integration/http \
-Aby skutecznie wysyłać zapytania do bazy danych, należy w zapytaniu podać dane do uwierzytelniania (te, które ustaliliśmy jako sekrety przed wdrożeniem) oraz dla headerów 'ns' i 'db' ustalić i podać (dowolne) nazwy namespace i database, z których chcemy korzystać podczas pracy z aplikacją, którą budujemy.
+Aby skutecznie wysyłać zapytania do bazy danych, należy w zapytaniu podać dane do uwierzytelniania (te, które ustaliliśmy jako sekrety przed wdrożeniem) oraz dla headerów 'ns' i 'db' ustalić i podać (dowolne) nazwy namespace i database, z których chcemy korzystać podczas pracy z aplikacją, którą budujemy. \
+
+Więcej szczegółów na temat wdrożenia SurrealDB w fly.io można znaleźć pod adresem https://surrealdb.com/docs/surrealdb/deployment/fly
